@@ -11,13 +11,15 @@ class App {
 
     up() {
 
+        // instance of static database
         const db = new StaticDatabase(this.config.dbPathname);
 
+        // initial routes map ( controller )
         const router = CreateApiRouter(db);
 
         const koa = new Koa();
 
-        // Handle output
+        // Handle output for undefined route path
         koa.use(async (ctx, next) => {
 
             try {
@@ -39,7 +41,12 @@ class App {
             .use(router.allowedMethods());
 
         koa.listen(this.config.httpPort, () => {
-            console.log(`Example koa app listening on port ${this.config.httpPort}!`)
+          process.env.DEBUG && console.log(`app listening on port ${this.config.httpPort}!`)
+        });
+
+        // log error when errors happen on app
+        koa.on('error', (err, ctx) => {
+          process.env.DEBUG && console.error('server error', err, ctx)
         });
 
         return koa;

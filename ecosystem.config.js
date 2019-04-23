@@ -3,13 +3,15 @@ module.exports = {
     name: 'API',
     script: 'src/main.js',
     autorestart: true,
-    watch: false,
+    watch: true,
     max_memory_restart: '1G',
     env: {
-      NODE_ENV: 'development'
+      NODE_ENV: 'development',
+      DEBUG: 'true'
     },
     env_production: {
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
+      DEBUG: 'false'
     }
   }]
 
