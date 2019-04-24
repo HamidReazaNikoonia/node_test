@@ -2,6 +2,7 @@
 const Koa = require('koa');
 const StaticDatabase = require('./StaticDatabase');
 const CreateApiRouter = require('./CreateApiRouter');
+const ApiError = require('./ApiError');
 
 class App {
 
@@ -11,29 +12,40 @@ class App {
 
     up() {
 
-        // instance of static database
         const db = new StaticDatabase(this.config.dbPathname);
 
-        // initial routes map ( controller )
         const router = CreateApiRouter(db);
 
         const koa = new Koa();
 
-        // Handle output for undefined route path
+        // Handle output
         koa.use(async (ctx, next) => {
 
             try {
                 let result = await next();
+                ctx.status = 200;
                 ctx.body = {
                     'status': 'OK',
                     'result': result,
                 };
             }
             catch (e) {
-                ctx.body = {
-                    'status': 'ERROR',
-                    'result': e.message,
-                };
+                if (e instanceof ApiError) {
+                    ctx.status = 400;
+                    ctx.body = {
+                        'status': 'ERROR',
+                        'result': e.message,
+                    };
+                }
+                else {
+                    if (e instanceof ApiError) {
+                        ctx.status = 500;
+                        ctx.body = {
+                            'status': 'ERROR',
+                            'result': 'Internal Error',
+                        };
+                    }
+                }
             }
         });
 
@@ -41,12 +53,11 @@ class App {
             .use(router.allowedMethods());
 
         koa.listen(this.config.httpPort, () => {
-          process.env.DEBUG && console.log(`app listening on port ${this.config.httpPort}!`)
+             console.log(`app listening on port => ${this.config.httpPort}!`)
         });
 
-        // log error when errors happen on app
-        koa.on('error', (err, ctx) => {
-          process.env.DEBUG && console.error('server error', err, ctx)
+        koa.on('error', err => {
+          process.env.DEBUG && log.error('server error', err)
         });
 
         return koa;

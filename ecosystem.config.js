@@ -6,12 +6,10 @@ module.exports = {
     watch: true,
     max_memory_restart: '1G',
     env: {
-      NODE_ENV: 'development',
-      DEBUG: 'true'
+      NODE_ENV: 'development'
     },
     env_production: {
-      NODE_ENV: 'production',
-      DEBUG: 'false'
+      NODE_ENV: 'production'
     }
   }]
 

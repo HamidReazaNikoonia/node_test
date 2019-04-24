@@ -1,5 +1,6 @@
 
 const Router = require('koa-router');
+const ApiError = require('./ApiError');
 
 const CreateApiRouter = (db) => {
 
@@ -24,14 +25,14 @@ const CreateApiRouter = (db) => {
 
         // A simple validation
         if (!name || name.length > 50) {
-            throw new Error('Name is not valid');
+            throw new ApiError('Name is not valid');
         }
 
         let human = await db.findHumanByName(name);
 
         // Couldn't find human by given name
         if (!human) {
-            throw new Error('Human doesn\'t exist.');
+            throw new ApiError('Human doesn\'t exist.');
         }
 
         // Check policy
